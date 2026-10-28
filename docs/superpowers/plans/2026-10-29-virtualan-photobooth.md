@@ -554,7 +554,7 @@ Expected: PASS
 - Consumes: 4 Capture objects with `hostImgUrl` and `guestImgUrl`.
 - Produces: Interactive rendered strip with drag reorder, filter CSS matrices, and stickers overlay state.
 
-- [ ] **Step 1: Write test for filter matrix styling**
+- [x] **Step 1: Write test for filter matrix styling**
 
 ```typescript
 // tests/unit/filters.test.ts
@@ -571,12 +571,12 @@ describe('Filter Styles', () => {
 });
 ```
 
-- [ ] **Step 2: Run test to verify it fails**
+- [x] **Step 2: Run test to verify it fails**
 
 Run: `npx vitest run tests/unit/filters.test.ts`
 Expected: FAIL with module not found.
 
-- [ ] **Step 3: Implement filter mapper and Strip Editor canvas**
+- [x] **Step 3: Implement filter mapper and Strip Editor canvas**
 
 ```typescript
 // src/lib/filters.ts
@@ -634,7 +634,7 @@ export function FilterSelector({ selected, onSelect }: Props) {
 }
 ```
 
-- [ ] **Step 4: Run test to verify it passes**
+- [x] **Step 4: Run test to verify it passes**
 
 Run: `npx vitest run tests/unit/filters.test.ts`
 Expected: PASS
