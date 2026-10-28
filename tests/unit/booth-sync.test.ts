@@ -156,4 +156,135 @@ describe('useBoothSync Hook', () => {
     unmount();
     expect(mockRoom.off).toHaveBeenCalledWith('dataReceived', expect.any(Function));
   });
+
+  it('retakeSlot updates local currentSlot, clears active countdown, and publishes RETAKE_SLOT', () => {
+    const { result } = renderHook(() => useBoothSync(mockRoom, true));
+
+    // Start countdown for slot 1
+    act(() => {
+      result.current.startCountdown(1);
+    });
+    expect(result.current.countdown).toBe(3);
+
+    // Call retakeSlot(4)
+    act(() => {
+      result.current.retakeSlot(4);
+    });
+
+    expect(result.current.currentSlot).toBe(4);
+    expect(result.current.countdown).toBeNull();
+    expect(result.current.isCapturing).toBe(false);
+
+    expect(mockRoom.localParticipant.publishData).toHaveBeenCalledTimes(2);
+    const publishArgs = mockRoom.localParticipant.publishData.mock.calls[1];
+    const decodedMessage: BoothSyncMessage = JSON.parse(new TextDecoder().decode(publishArgs[0]));
+    expect(decodedMessage).toEqual({
+      type: 'RETAKE_SLOT',
+      slotIndex: 4,
+    });
+    expect(publishArgs[1]).toEqual({ reliable: true });
+  });
+
+  it('receives RETAKE_SLOT event from peer and updates currentSlot and clears timers', () => {
+    const { result } = renderHook(() => useBoothSync(mockRoom, false));
+
+    const payload: BoothSyncMessage = {
+      type: 'RETAKE_SLOT',
+      slotIndex: 2,
+    };
+    const encoded = new TextEncoder().encode(JSON.stringify(payload));
+
+    act(() => {
+      eventListeners['dataReceived']?.(encoded);
+    });
+
+    expect(result.current.currentSlot).toBe(2);
+    expect(result.current.countdown).toBeNull();
+    expect(result.current.isCapturing).toBe(false);
+  });
+
+  it('triggers immediate capture when peer receives late packet with non-positive delayRemaining', () => {
+    const onCaptureMock = vi.fn();
+    const { result } = renderHook(() =>
+      useBoothSync(mockRoom, false, { onCapture: onCaptureMock, serverOffsetMs: 0 })
+    );
+
+    // Packet arrived with targetTimestamp in the past (e.g. 500ms late)
+    const targetTimestamp = Date.now() - 500;
+    const payload: BoothSyncMessage = {
+      type: 'COUNTDOWN_START',
+      slotIndex: 2,
+      targetTimestamp,
+    };
+    const encoded = new TextEncoder().encode(JSON.stringify(payload));
+
+    act(() => {
+      eventListeners['dataReceived']?.(encoded);
+    });
+
+    expect(result.current.countdown).toBeNull();
+    expect(result.current.isCapturing).toBe(true);
+    expect(onCaptureMock).toHaveBeenCalledWith(2);
+
+    act(() => {
+      vi.advanceTimersByTime(500);
+    });
+    expect(result.current.isCapturing).toBe(false);
+  });
+
+  it('calculates countdown with Math.ceil when peer receives positive delayRemaining', () => {
+    const onCaptureMock = vi.fn();
+    const { result } = renderHook(() =>
+      useBoothSync(mockRoom, false, { onCapture: onCaptureMock, serverOffsetMs: 0 })
+    );
+
+    // 1400ms remaining -> Math.ceil(1.4) = 2s countdown
+    const targetTimestamp = Date.now() + 1400;
+    const payload: BoothSyncMessage = {
+      type: 'COUNTDOWN_START',
+      slotIndex: 3,
+      targetTimestamp,
+    };
+    const encoded = new TextEncoder().encode(JSON.stringify(payload));
+
+    act(() => {
+      eventListeners['dataReceived']?.(encoded);
+    });
+
+    expect(result.current.countdown).toBe(2);
+
+    act(() => {
+      vi.advanceTimersByTime(1000);
+    });
+    expect(result.current.countdown).toBe(1);
+
+    act(() => {
+      vi.advanceTimersByTime(1000);
+    });
+    expect(result.current.countdown).toBeNull();
+    expect(result.current.isCapturing).toBe(true);
+    expect(onCaptureMock).toHaveBeenCalledWith(3);
+  });
+
+  it('host integrates calculateTargetCaptureTime with serverOffsetMs', () => {
+    const clientNow = 20000;
+    vi.setSystemTime(clientNow);
+    const serverOffsetMs = 150; // client behind server
+
+    const { result } = renderHook(() =>
+      useBoothSync(mockRoom, true, { serverOffsetMs })
+    );
+
+    act(() => {
+      result.current.startCountdown(1);
+    });
+
+    const publishArgs = mockRoom.localParticipant.publishData.mock.calls[0];
+    const decodedMessage: BoothSyncMessage = JSON.parse(new TextDecoder().decode(publishArgs[0]));
+    expect(decodedMessage.type).toBe('COUNTDOWN_START');
+    if (decodedMessage.type === 'COUNTDOWN_START') {
+      // 20000 + 150 + 3000 = 23150
+      expect(decodedMessage.targetTimestamp).toBe(23150);
+    }
+  });
 });

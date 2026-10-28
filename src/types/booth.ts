@@ -5,6 +5,7 @@ export type BoothSyncMessage =
 
 export interface BoothSyncOptions {
   onCapture?: (slotIndex: number) => void;
+  serverOffsetMs?: number;
 }
 
 export interface BoothSyncState {
@@ -12,4 +13,5 @@ export interface BoothSyncState {
   currentSlot: number;
   isCapturing: boolean;
   startCountdown: (slot: number) => void;
+  retakeSlot: (slot: number) => void;
 }
