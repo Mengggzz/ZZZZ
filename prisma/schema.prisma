@@ -1,0 +1,61 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+enum RoomStatus {
+  WAITING
+  CONNECTED
+  CAPTURING
+  EDITING
+  COMPLETED
+  EXPIRED
+}
+
+enum LayoutType {
+  STRIP_4X1
+  GRID_2X2
+}
+
+model Room {
+  id           String      @id @default(cuid())
+  code         String      @unique @db.VarChar(6)
+  status       RoomStatus  @default(WAITING)
+  createdAt    DateTime    @default(now())
+  expiresAt    DateTime
+  hostId       String
+  guestId      String?
+  sessionTimer Int         @default(300)
+  captures     Capture[]
+  strip        Strip?
+}
+
+model Capture {
+  id          String   @id @default(cuid())
+  roomId      String
+  slotIndex   Int
+  hostImgUrl  String
+  guestImgUrl String?
+  createdAt   DateTime @default(now())
+  room        Room     @relation(fields: [roomId], references: [id], onDelete: Cascade)
+
+  @@unique([roomId, slotIndex])
+}
+
+model Strip {
+  id             String      @id @default(cuid())
+  roomId         String      @unique
+  layout         LayoutType  @default(STRIP_4X1)
+  frameTheme     String      @default("newspaper")
+  filter         String      @default("original")
+  stickersJson   Json?
+  watermarkedUrl String
+  hdUrl          String?
+  isPaid         Boolean     @default(false)
+  createdAt      DateTime    @default(now())
+  room           Room        @relation(fields: [roomId], references: [id], onDelete: Cascade)
+}
