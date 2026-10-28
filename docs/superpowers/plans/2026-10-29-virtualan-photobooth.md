@@ -441,7 +441,7 @@ Expected: PASS
 - Consumes: Native `HTMLVideoElement` / `MediaStreamTrack`.
 - Produces: Aspect-ratio cropped JPEG blob (`Blob`) ready for upload and composite.
 
-- [ ] **Step 1: Write test for camera cropping calculation (3:2 photobooth slot ratio)**
+- [x] **Step 1: Write test for camera cropping calculation (3:2 photobooth slot ratio)**
 
 ```typescript
 // tests/unit/canvas-capture.test.ts
@@ -463,12 +463,12 @@ describe('Canvas Capture Cropper', () => {
 });
 ```
 
-- [ ] **Step 2: Run test to verify it fails**
+- [x] **Step 2: Run test to verify it fails**
 
 Run: `npx vitest run tests/unit/canvas-capture.test.ts`
 Expected: FAIL with module not found.
 
-- [ ] **Step 3: Implement canvas capture & crop bounds utility**
+- [x] **Step 3: Implement canvas capture & crop bounds utility**
 
 ```typescript
 // src/lib/canvas-capture.ts
@@ -537,7 +537,7 @@ export async function captureVideoFrame(videoEl: HTMLVideoElement, targetAspect 
 }
 ```
 
-- [ ] **Step 4: Run test to verify it passes**
+- [x] **Step 4: Run test to verify it passes**
 
 Run: `npx vitest run tests/unit/canvas-capture.test.ts`
 Expected: PASS
