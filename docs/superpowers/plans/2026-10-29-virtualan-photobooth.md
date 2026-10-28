@@ -184,7 +184,7 @@ if (process.env.NODE_ENV !== 'production') globalForPrisma.prisma = db;
 - Consumes: `db` from `src/lib/prisma.ts`, `generateRoomCode` from `src/lib/room-code.ts`.
 - Produces: HTTP API endpoints for room creation, joining, and LiveKit connection tokens.
 
-- [ ] **Step 1: Write integration tests for Room creation & join**
+- [x] **Step 1: Write integration tests for Room creation & join**
 
 ```typescript
 // tests/integration/rooms-api.test.ts
@@ -217,12 +217,12 @@ describe('Room API Handlers', () => {
 });
 ```
 
-- [ ] **Step 2: Run test to verify it fails**
-
-Run: `npx vitest run tests/integration/rooms-api.test.ts`
-Expected: FAIL with handlers not implemented.
-
-- [ ] **Step 3: Implement LiveKit token service and Next.js route handlers**
+- [x] **Step 2: Run test to verify it fails**
+ 
+ Run: `npx vitest run tests/integration/rooms-api.test.ts`
+ Expected: FAIL with handlers not implemented.
+ 
+-- [x] **Step 3: Implement LiveKit token service and Next.js route handlers**
 
 ```typescript
 // src/lib/livekit.ts
@@ -303,7 +303,7 @@ export async function POST(req: Request) {
 }
 ```
 
-- [ ] **Step 4: Run test to verify it passes**
+- [x] **Step 4: Run test to verify it passes**
 
 Run: `npx vitest run tests/integration/rooms-api.test.ts`
 Expected: PASS
