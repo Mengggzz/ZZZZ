@@ -39,7 +39,7 @@
 **Interfaces:**
 - Produces: Prisma Client singleton instance (`db` from `src/lib/prisma.ts`) and database models `Room`, `Capture`, `Strip`.
 
-- [ ] **Step 1: Write the failing test for Prisma models & room code validator**
+- [x] **Step 1: Write the failing test for Prisma models & room code validator**
 
 ```typescript
 // tests/unit/prisma-schema.test.ts
@@ -62,12 +62,12 @@ describe('Room Code Utility', () => {
 });
 ```
 
-- [ ] **Step 2: Run test to verify it fails**
+- [x] **Step 2: Run test to verify it fails**
 
 Run: `npx vitest run tests/unit/prisma-schema.test.ts`
 Expected: FAIL with module not found `../../src/lib/room-code`.
 
-- [ ] **Step 3: Implement room code generator and validator**
+- [x] **Step 3: Implement room code generator and validator**
 
 ```typescript
 // src/lib/room-code.ts
@@ -89,12 +89,12 @@ export function isValidRoomCode(code: string): boolean {
 }
 ```
 
-- [ ] **Step 4: Run test to verify it passes**
+- [x] **Step 4: Run test to verify it passes**
 
 Run: `npx vitest run tests/unit/prisma-schema.test.ts`
 Expected: PASS
 
-- [ ] **Step 5: Setup Prisma schema & database singleton**
+- [x] **Step 5: Setup Prisma schema & database singleton**
 
 ```prisma
 // prisma/schema.prisma
