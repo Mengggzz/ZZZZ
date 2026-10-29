@@ -4,7 +4,7 @@ import { generateCompositeAssetUrls, StripLayout } from '@/lib/composite-rendere
 
 export async function POST(req: Request) {
   try {
-    const body = await req.json().catch(() => ({}));
+    const body = await req.json();
     const {
       roomId,
       layout = 'STRIP_4X1',
@@ -14,12 +14,12 @@ export async function POST(req: Request) {
     } = body;
 
     if (!roomId) {
-      return NextResponse.json({ error: 'Room ID is required' }, { status: 400 });
+      return NextResponse.json({ error: 'roomId wajib disertakan' }, { status: 400 });
     }
 
-    const room = await db.room.findUnique({
-      where: { id: roomId },
-    });
+    const room =
+      (await db.room.findUnique({ where: { id: roomId } })) ||
+      (await db.room.findUnique({ where: { code: roomId } }));
 
     if (!room) {
       return NextResponse.json({ error: 'Room not found' }, { status: 404 });

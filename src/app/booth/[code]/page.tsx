@@ -9,11 +9,12 @@ import { captureVideoFrame } from '@/lib/canvas-capture';
 
 interface RoomData {
   code: string;
+  roomId: string;
   status: string;
   remainingSeconds: number;
   participants: {
-    hostId: string;
-    guestId: string | null;
+    host: string;
+    guest: string | null;
   };
 }
 
@@ -47,6 +48,12 @@ export default function BoothPage() {
     3: string | null;
     4: string | null;
   }>({ 1: null, 2: null, 3: null, 4: null });
+
+  // Editor state customization
+  const [editorLayout, setEditorLayout] = useState<'STRIP_4X1' | 'GRID_2X2'>('STRIP_4X1');
+  const [editorTheme, setEditorTheme] = useState<'newspaper' | 'pastel' | 'clean'>('newspaper');
+  const [editorFilter, setEditorFilter] = useState<any>('original');
+  const [editorStickers, setEditorStickers] = useState<any[]>([]);
 
   // Modal finalization barrier
   const [isConfirmOpen, setIsConfirmOpen] = useState(false);
@@ -232,16 +239,17 @@ export default function BoothPage() {
   // Finalize strip handler
   const handleConfirmFinalize = async () => {
     setIsRendering(true);
+    const targetRoomId = room?.roomId || room?.code || code;
     try {
       const res = await fetch('/api/strips/render', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          roomId: room?.code || code,
-          layout: 'STRIP_4X1',
-          frameTheme: 'newspaper',
-          filter: 'original',
-          stickers: [],
+          roomId: targetRoomId,
+          layout: editorLayout,
+          frameTheme: editorTheme,
+          filter: editorFilter,
+          stickers: editorStickers,
         }),
       });
       const data = await res.json();
@@ -400,6 +408,14 @@ export default function BoothPage() {
                 { slotIndex: 3, hostImgUrl: capturedImages[3] || '' },
                 { slotIndex: 4, hostImgUrl: capturedImages[4] || '' },
               ]}
+              layout={editorLayout}
+              frameTheme={editorTheme}
+              filter={editorFilter}
+              stickers={editorStickers}
+              onLayoutChange={setEditorLayout}
+              onThemeChange={setEditorTheme}
+              onFilterChange={setEditorFilter}
+              onStickersChange={setEditorStickers}
               onRetakeSlot={handleRetakeSlot}
               onRetakeAll={handleRetakeAll}
               onFinalize={() => setIsConfirmOpen(true)}
@@ -443,11 +459,16 @@ export default function BoothPage() {
             <div className="flex flex-col gap-3 w-full">
               <button
                 type="button"
-                onClick={() => {
+                onClick={async () => {
                   if (typeof navigator !== 'undefined' && navigator.share) {
-                    navigator.share({ title: 'Strip Virtualan', url: window.location.href });
-                  } else {
-                    alert('Strip siap dibagikan!');
+                    try {
+                      await navigator.share({ title: 'Strip Virtualan', url: window.location.href });
+                    } catch (e) {
+                      // user cancelled share
+                    }
+                  } else if (typeof navigator !== 'undefined' && navigator.clipboard) {
+                    await navigator.clipboard.writeText(window.location.href);
+                    alert('Tautan strip berhasil disalin ke papan klip!');
                   }
                 }}
                 className="w-full py-3.5 rounded-xl bg-white text-black font-extrabold text-sm hover:bg-neutral-200 transition"
