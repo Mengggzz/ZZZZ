@@ -12,11 +12,25 @@ export async function POST(req: Request) {
 
     const room = await db.room.findUnique({ where: { code } });
 
-    if (!room || room.status === 'EXPIRED' || room.status === 'COMPLETED') {
+    if (!room) {
       return NextResponse.json({ error: 'Ruangan tidak ditemukan atau sudah kedaluwarsa' }, { status: 404 });
     }
 
+    if (room.status === 'EXPIRED' || new Date() > room.expiresAt) {
+      return NextResponse.json({ error: 'Ruangan tidak ditemukan atau sudah kedaluwarsa' }, { status: 404 });
+    }
+
+    if (room.status === 'COMPLETED') {
+      return NextResponse.json({ error: 'Sesi ruangan sudah selesai' }, { status: 404 });
+    }
+
     const guestId = userId || `guest_${Math.random().toString(36).substring(7)}`;
+
+    // Guard against 3rd participant overwrite
+    if (room.guestId && room.guestId !== guestId) {
+      return NextResponse.json({ error: 'Ruangan sudah penuh' }, { status: 409 });
+    }
+
     await db.room.update({
       where: { id: room.id },
       data: { guestId, status: 'CONNECTED' },

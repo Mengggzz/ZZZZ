@@ -302,7 +302,7 @@ export function StripEditor({
               </h2>
               <div className="flex justify-between items-center text-[10px] uppercase font-mono tracking-wider border-t border-b border-neutral-700 py-0.5 mt-1">
                 <span>Special Momoto LDR Edition</span>
-                <span>{new Date().toLocaleDateString('id-ID', { year: 'numeric', month: 'short', day: 'numeric' })}</span>
+                <span suppressHydrationWarning>{new Date().toLocaleDateString('id-ID', { year: 'numeric', month: 'short', day: 'numeric' })}</span>
                 <span>Vol. 1 No. 4</span>
               </div>
             </div>

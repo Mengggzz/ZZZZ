@@ -3,11 +3,10 @@ import { db } from '@/lib/prisma';
 
 export async function GET(
   req: Request,
-  { params }: { params: Promise<{ code: string }> | { code: string } }
+  { params }: { params: Promise<{ code: string }> }
 ) {
   try {
-    const resolvedParams = await params;
-    const { code } = resolvedParams;
+    const { code } = await params;
 
     const room = await db.room.findUnique({ where: { code } });
 

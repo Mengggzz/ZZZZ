@@ -4,7 +4,6 @@ import React, { forwardRef, useEffect, useRef, useImperativeHandle } from 'react
 
 export interface CameraViewportProps {
   stream?: MediaStream | null;
-  videoRef?: React.Ref<HTMLVideoElement>;
   mirrored?: boolean;
   countdown?: number | null;
   isFlashing?: boolean;

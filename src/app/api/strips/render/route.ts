@@ -26,10 +26,10 @@ export async function POST(req: Request) {
     }
 
     const validLayout: StripLayout = layout === 'GRID_2X2' ? 'GRID_2X2' : 'STRIP_4X1';
-    const assetUrls = generateCompositeAssetUrls(roomId, validLayout);
+    const assetUrls = generateCompositeAssetUrls(room.id, validLayout);
 
     const strip = await db.strip.upsert({
-      where: { roomId },
+      where: { roomId: room.id },
       update: {
         layout: validLayout,
         frameTheme,
@@ -39,13 +39,14 @@ export async function POST(req: Request) {
         hdUrl: assetUrls.hdUrl,
       },
       create: {
-        roomId,
+        roomId: room.id,
         layout: validLayout,
         frameTheme,
         filter,
         stickersJson: stickers,
         watermarkedUrl: assetUrls.watermarkedUrl,
         hdUrl: assetUrls.hdUrl,
+        isPaid: false,
       },
     });
 

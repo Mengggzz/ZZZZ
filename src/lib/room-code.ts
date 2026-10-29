@@ -1,10 +1,12 @@
+import crypto from 'crypto';
+
 const ALLOWED_CHARS = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
 
 export function generateRoomCode(): string {
   let result = '';
+  const randomBytes = crypto.randomBytes(6);
   for (let i = 0; i < 6; i++) {
-    const randomIndex = Math.floor(Math.random() * ALLOWED_CHARS.length);
-    result += ALLOWED_CHARS[randomIndex];
+    result += ALLOWED_CHARS[randomBytes[i] % ALLOWED_CHARS.length];
   }
   return result;
 }

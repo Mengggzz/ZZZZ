@@ -197,5 +197,45 @@ describe('Room API Handlers', () => {
       expect(data.participants.host).toBe('host-abc');
       expect(data.participants.guest).toBe('guest-abc');
     });
+
+    it('rejects joining an expired room', async () => {
+      mockRooms.set('EXPIRE', {
+        id: 'room-expired',
+        code: 'EXPIRE',
+        status: 'WAITING',
+        expiresAt: new Date(Date.now() - 60000), // expired 1 min ago
+        hostId: 'host-1',
+        guestId: null,
+      });
+
+      const req = new Request('http://localhost/api/rooms/join', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ code: 'EXPIRE', userId: 'user-guest-999' }),
+      });
+      const res = await joinRoomHandler(req);
+      expect(res.status).toBe(404);
+    });
+
+    it('rejects 3rd participant when room already has a guest', async () => {
+      mockRooms.set('FULL99', {
+        id: 'room-full',
+        code: 'FULL99',
+        status: 'CONNECTED',
+        expiresAt: new Date(Date.now() + 300000),
+        hostId: 'host-1',
+        guestId: 'first-guest',
+      });
+
+      const req = new Request('http://localhost/api/rooms/join', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ code: 'FULL99', userId: 'intruder-guest' }),
+      });
+      const res = await joinRoomHandler(req);
+      expect(res.status).toBe(409);
+      const data = await res.json();
+      expect(data.error).toBe('Ruangan sudah penuh');
+    });
   });
 });
