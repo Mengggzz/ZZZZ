@@ -651,7 +651,7 @@ Expected: PASS
 - Consumes: 4 slot images, layout type (`4x1` | `2x2`), frame theme, filter, and stickers json.
 - Produces: Watermarked PNG buffer / URL and clean HD URL.
 
-- [ ] **Step 1: Write test for composite canvas coordinates calculation**
+- [x] **Step 1: Write test for composite canvas coordinates calculation**
 
 ```typescript
 // tests/unit/composite-renderer.test.ts
@@ -673,49 +673,49 @@ describe('Composite Dimensions', () => {
 });
 ```
 
-- [ ] **Step 2: Run test to verify it fails**
-
-Run: `npx vitest run tests/unit/composite-renderer.test.ts`
-Expected: FAIL with module not found.
-
-- [ ] **Step 3: Implement composite dimension and rendering engine**
-
-```typescript
-// src/lib/composite-renderer.ts
-export function calculateStripCanvasDimensions(layout: 'STRIP_4X1' | 'GRID_2X2', baseWidth: number) {
-  if (layout === 'STRIP_4X1') {
-    const margin = Math.round(baseWidth * 0.05);
-    const slotWidth = baseWidth - margin * 2;
-    const slotHeight = Math.round(slotWidth * (2 / 3)); // 3:2 ratio
-    const footerHeight = Math.round(baseWidth * 0.35);
-    const totalHeight = margin + (slotHeight + margin) * 4 + footerHeight;
-    return { width: baseWidth, height: totalHeight, margin, slotWidth, slotHeight, footerHeight };
-  } else {
-    const margin = Math.round(baseWidth * 0.04);
-    const slotWidth = Math.round((baseWidth - margin * 3) / 2);
-    const slotHeight = Math.round(slotWidth * (2 / 3));
-    const footerHeight = Math.round(baseWidth * 0.25);
-    const totalHeight = margin + (slotHeight + margin) * 2 + footerHeight;
-    return { width: baseWidth, height: totalHeight, margin, slotWidth, slotHeight, footerHeight };
-  }
-}
-
-export function drawWatermark(ctx: CanvasRenderingContext2D, width: number, height: number, text = 'Virtualan') {
-  ctx.save();
-  ctx.font = `bold ${Math.round(width * 0.045)}px sans-serif`;
-  ctx.fillStyle = 'rgba(255, 255, 255, 0.4)';
-  ctx.textAlign = 'center';
-  ctx.textBaseline = 'middle';
-
-  // Draw diagonally repeated pattern
-  for (let y = height * 0.2; y < height * 0.8; y += height * 0.2) {
-    ctx.fillText(text, width / 2, y);
-  }
-  ctx.restore();
-}
-```
-
-- [ ] **Step 4: Run test to verify it passes**
+- [x] **Step 2: Run test to verify it fails**
+ 
+ Run: `npx vitest run tests/unit/composite-renderer.test.ts`
+ Expected: FAIL with module not found.
+ 
+- [x] **Step 3: Implement composite dimension and rendering engine**
+ 
+ ```typescript
+ // src/lib/composite-renderer.ts
+ export function calculateStripCanvasDimensions(layout: 'STRIP_4X1' | 'GRID_2X2', baseWidth: number) {
+   if (layout === 'STRIP_4X1') {
+     const margin = Math.round(baseWidth * 0.05);
+     const slotWidth = baseWidth - margin * 2;
+     const slotHeight = Math.round(slotWidth * (2 / 3)); // 3:2 ratio
+     const footerHeight = Math.round(baseWidth * 0.35);
+     const totalHeight = margin + (slotHeight + margin) * 4 + footerHeight;
+     return { width: baseWidth, height: totalHeight, margin, slotWidth, slotHeight, footerHeight };
+   } else {
+     const margin = Math.round(baseWidth * 0.04);
+     const slotWidth = Math.round((baseWidth - margin * 3) / 2);
+     const slotHeight = Math.round(slotWidth * (2 / 3));
+     const footerHeight = Math.round(baseWidth * 0.25);
+     const totalHeight = margin + (slotHeight + margin) * 2 + footerHeight;
+     return { width: baseWidth, height: totalHeight, margin, slotWidth, slotHeight, footerHeight };
+   }
+ }
+ 
+ export function drawWatermark(ctx: CanvasRenderingContext2D, width: number, height: number, text = 'Virtualan') {
+   ctx.save();
+   ctx.font = `bold ${Math.round(width * 0.045)}px sans-serif`;
+   ctx.fillStyle = 'rgba(255, 255, 255, 0.4)';
+   ctx.textAlign = 'center';
+   ctx.textBaseline = 'middle';
+ 
+   // Draw diagonally repeated pattern
+   for (let y = height * 0.2; y < height * 0.8; y += height * 0.2) {
+     ctx.fillText(text, width / 2, y);
+   }
+   ctx.restore();
+ }
+ ```
+ 
+- [x] **Step 4: Run test to verify it passes**
 
 Run: `npx vitest run tests/unit/composite-renderer.test.ts`
 Expected: PASS
